@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MySocial Card — One Profile. All Your Socials.</title>
+<meta name="description" content="Create your digital identity, connect all your socials, and share a beautiful QR card.">
+<style>
+:root{--bg:#0b0d14;--fg:#f4f5fa;--mut:#9aa0b4;--glass:rgba(255,255,255,.07);--bd:rgba(255,255,255,.14);--ac:#7c5cff}
+@media(prefers-color-scheme:light){:root{--bg:#f4f5fa;--fg:#12141c;--mut:#5b6075;--glass:rgba(255,255,255,.7);--bd:rgba(0,0,0,.1)}}
+*{box-sizing:border-box}body{margin:0;font:16px/1.5 system-ui,sans-serif;background:var(--bg);color:var(--fg)}
+body:before{content:"";position:fixed;inset:0;background:radial-gradient(600px 400px at 20% 0,#7c5cff55,transparent),radial-gradient(500px 400px at 90% 20%,#00d4ff33,transparent);z-index:-1}
+main{max-width:1000px;margin:auto;padding:20px}
+h1{font-size:clamp(2rem,7vw,3.6rem);line-height:1.1;margin:.3em 0}
+.glass{background:var(--glass);border:1px solid var(--bd);border-radius:22px;padding:20px;backdrop-filter:blur(14px)}
+button,.btn{background:var(--ac);color:#fff;border:0;border-radius:14px;padding:12px 18px;font:inherit;font-weight:600;cursor:pointer;min-height:44px;text-decoration:none;display:inline-block}
+button.ghost{background:var(--glass);color:var(--fg);border:1px solid var(--bd)}
+input,select,textarea{width:100%;padding:11px;margin:4px 0 12px;border-radius:12px;border:1px solid var(--bd);background:var(--glass);color:var(--fg);font:inherit}
+label{font-size:.85rem;color:var(--mut)}
+nav{display:flex;justify-content:space-between;align-items:center;padding:8px 0}
+.logo{font-weight:800;font-size:1.2rem}.logo i{display:inline-block;width:22px;height:22px;border-radius:7px;background:linear-gradient(135deg,#7c5cff,#00d4ff);vertical-align:-4px;margin-right:6px}
+.grid{display:grid;gap:20px;grid-template-columns:1fr}@media(min-width:800px){.grid{grid-template-columns:1fr 1fr}}
+.row{display:flex;gap:8px;flex-wrap:wrap}.row>*{flex:1}
+canvas{width:100%;max-width:420px;border-radius:24px;display:block;margin:auto}
+.pub{text-align:center;max-width:460px;margin:auto}.pub img.av{width:110px;height:110px;border-radius:50%;object-fit:cover;border:3px solid var(--ac)}
+.pub a.l{display:block;margin:8px 0;padding:14px;border-radius:16px;background:var(--glass);border:1px solid var(--bd);color:var(--fg);text-decoration:none;font-weight:600}
+.err{color:#ff6b7a;min-height:1.4em}.hide{display:none}small{color:var(--mut)}
+</style></head><body><main id="app"></main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script type="module">
+// ---- Firebase (config kept separate; see firebase section) ----
+import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import{getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signInWithPopup,GoogleAuthProvider,sendPasswordResetEmail,signOut}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import{getFirestore,doc,getDoc,setDoc,runTransaction,collection,addDoc,updateDoc,increment,serverTimestamp,query,where,getDocs,limit}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import{getAnalytics}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
+const app=initializeApp({apiKey:"AIzaSyAmJkWSzjx4_ujw1Mp12nGQA2mcYK16F14",authDomain:"bdbook2026.firebaseapp.com",projectId:"bdbook2026",storageBucket:"bdbook2026.firebasestorage.app",messagingSenderId:"196207583862",appId:"1:196207583862:web:a7b33632f739f1f9dff557",measurementId:"G-V4JQ7KXJBL"});
+try{getAnalytics(app)}catch(e){}
+const auth=getAuth(app),db=getFirestore(app);
+const $=(s,r=document)=>r.querySelector(s),app_=$("#app");
+const BASE=location.origin+location.pathname;
+const msg=e=>({"auth/invalid-credential":"Wrong email or password.","auth/email-already-in-use":"That email is already registered.","auth/weak-password":"Use a password of 6+ characters.","auth/invalid-email":"Enter a valid email.","auth/network-request-failed":"Network problem. Check your connection.","permission-denied":"You don't have permission for that."}[e.code]||"Something went wrong. Please try again.");
+const NETS=["Facebook","Instagram","TikTok","YouTube","WhatsApp","Telegram","LinkedIn","X","GitHub","Discord","Website"];
+const THEMES={obsidian:["#0d0f1a","#1d2140","#fff","#7c5cff"],aurora:["#0f2027","#2c5364","#fff","#00e5a8"],luxury:["#0a0a0a","#1c1710","#f5e6c0","#d4af37"],crystal:["#e8f1ff","#ffffff","#12203a","#3b82f6"],neon:["#06000f","#1a0033","#fff","#ff2bd6"],executive:["#f5f5f2","#dcdcd6","#1a1a1a","#0f3d7a"],creator:["#ff512f","#dd2476","#fff","#ffd200"],developer:["#0d1117","#161b22","#c9d1d9","#3fb950"],minimal:["#ffffff","#f3f4f6","#111","#111"],midnight:["#050a24","#0b1f5c","#e6ecff","#4da3ff"]};
+let me=null,P=null;
+
+// ---- routing ----
+const uParam=new URLSearchParams(location.search).get("u");
+if(uParam)publicView(uParam.toLowerCase());
+else onAuthStateChanged(auth,async u=>{me=u;if(!u)return landing();const s=await getDoc(doc(db,"users",u.uid));P=s.exists()?s.data():null;P?editor():onboard()});
+
+// ---- landing + auth ----
+function landing(){app_.innerHTML=`<nav><span class=logo><i></i>MySocial Card</span></nav>
+<section style="text-align:center;padding:30px 0"><h1>One Profile.<br>All Your Socials.</h1>
+<p style="color:var(--mut);max-width:560px;margin:auto">Create your digital identity, connect all your social profiles, generate a beautiful card, and share it anywhere.</p></section>
+<div class="glass" style="max-width:420px;margin:auto"><form id=f>
+<label for=em>Email</label><input id=em type=email required autocomplete=email>
+<label for=pw>Password</label><input id=pw type=password required minlength=6 autocomplete=current-password>
+<div class=err id=er role=alert></div>
+<div class=row><button type=submit>Log in</button><button type=button class=ghost id=su>Create My Card</button></div></form>
+<p><button class=ghost style="width:100%" id=gg>Continue with Google</button></p>
+<small><a href=# id=fp style="color:var(--ac)">Forgot password?</a></small></div>
+<section class=grid style="margin-top:30px">${["Create your profile","Add your socials","Pick a premium theme","Get your QR","Share everywhere"].map((t,i)=>`<div class=glass><b>${i+1}. ${t}</b></div>`).join("")}</section>`;
+const er=m=>$("#er").textContent=m,go=fn=>async e=>{e?.preventDefault?.();try{await fn()}catch(x){er(msg(x))}};
+$("#f").onsubmit=go(()=>signInWithEmailAndPassword(auth,$("#em").value,$("#pw").value));
+$("#su").onclick=go(()=>createUserWithEmailAndPassword(auth,$("#em").value,$("#pw").value));
+$("#gg").onclick=go(()=>signInWithPopup(auth,new GoogleAuthProvider()));
+$("#fp").onclick=go(async()=>{await sendPasswordResetEmail(auth,$("#em").value);er("Reset email sent if the account exists.")})}
+
+// ---- onboarding: unique username via transaction ----
+function onboard(){app_.innerHTML=`<div class=glass style="max-width:460px;margin:40px auto"><h2>Create your profile</h2><form id=f>
+<label for=un>Username</label><input id=un required pattern="[a-z0-9_]{3,20}" placeholder="rafi">
+<label for=nm>Name</label><input id=nm required maxlength=60>
+<label for=md>Profile mode</label><select id=md><option>personal<option>creator<option>professional<option>developer</select>
+<div class=err id=er role=alert></div><button>Continue</button></form></div>`;
+$("#f").onsubmit=async e=>{e.preventDefault();const un=$("#un").value.toLowerCase().trim();
+try{await runTransaction(db,async t=>{const r=doc(db,"usernames",un);if((await t.get(r)).exists())throw{code:"taken"};
+t.set(r,{uid:me.uid});t.set(doc(db,"users",me.uid),{uid:me.uid,username:un,name:$("#nm").value,bio:"",photoURL:"",profileMode:$("#md").value,socialLinks:[],skills:[],projects:[],experience:[],theme:{name:"obsidian",radius:28,align:"center"},privacy:{email:"private"},createdAt:serverTimestamp(),updatedAt:serverTimestamp()})});
+P=(await getDoc(doc(db,"users",me.uid))).data();editor()}
+catch(x){$("#er").textContent=x.code=="taken"?`Username already taken. Try: ${un}01, ${un}_bd, ${un}2026`:msg(x)}}}
+
+// ---- editor + live card ----
+function editor(){
+app_.innerHTML=`<nav><span class=logo><i></i>MySocial Card</span><button class=ghost id=lo>Logout</button></nav>
+<div class=grid><div class=glass><h3>Profile</h3>
+<label for=nm>Name</label><input id=nm value="${esc(P.name)}"><label for=bi>Bio</label><textarea id=bi rows=3>${esc(P.bio)}</textarea>
+<label for=ph>Photo</label><input id=ph type=file accept="image/*">
+<label for=th>Theme</label><select id=th>${Object.keys(THEMES).map(k=>`<option ${P.theme.name==k?"selected":""}>${k}`)}</select>
+<label for=ac>Accent</label><input id=ac type=color value="${P.theme.accent||THEMES[P.theme.name][3]}">
+<label for=rd>Card radius</label><input id=rd type=range min=0 max=60 value="${P.theme.radius}">
+<h3>Social links</h3><div id=ls></div><button class=ghost id=ad>+ Add link</button>
+<div class=err id=er role=alert></div><button id=sv style="width:100%">Save profile</button></div>
+<div><canvas id=cv></canvas><div class=row style="margin-top:12px"><button data-s="1080x1080">Square PNG</button><button data-s="1080x1920">Story PNG</button></div>
+<p class=glass><b>Your link</b><br><a id=lk style="color:var(--ac);word-break:break-all"></a>
+<span class=row><button class=ghost id=cp>Copy / Share</button></span></p></div></div>`;
+const url=`${BASE}?u=${P.username}`;$("#lk").textContent=url;$("#lk").href=url;
+const draw=()=>{P.name=$("#nm").value;P.bio=$("#bi").value;P.theme={name:$("#th").value,accent:$("#ac").value,radius:+$("#rd").value,align:"center"};render($("#cv"),P,1080,1080,url)};
+const lsEl=$("#ls"),row=(l={})=>{const d=document.createElement("div");d.className="row";d.innerHTML=`<select aria-label="Network">${NETS.map(n=>`<option ${l.type==n?"selected":""}>${n}`)}</select><input aria-label="URL" placeholder="https://" value="${esc(l.url||"")}"><button class=ghost aria-label="Remove">✕</button>`;d.querySelector("button").onclick=()=>{d.remove();draw2()};d.oninput=draw2;lsEl.append(d)};
+const collect=()=>[...lsEl.children].map(d=>({type:d.children[0].value,url:d.children[1].value.trim(),enabled:true})).filter(l=>/^https?:\/\//.test(l.url));
+const draw2=()=>{P.socialLinks=collect();draw()};
+P.socialLinks.forEach(row);$("#ad").onclick=()=>row();
+["nm","bi","th","ac","rd"].forEach(i=>$("#"+i).oninput=draw2);draw2();
+$("#ph").onchange=async e=>{try{P.photoURL=await shrink(e.target.files[0]);draw2()}catch(x){$("#er").textContent="Image upload failed. Try a smaller image."}};
+$("#sv").onclick=async()=>{try{await updateDoc(doc(db,"users",me.uid),{name:P.name,bio:P.bio,photoURL:P.photoURL,theme:P.theme,socialLinks:P.socialLinks,updatedAt:serverTimestamp()});$("#er").textContent="Saved ✓"}catch(x){$("#er").textContent=msg(x)}};
+$("#lo").onclick=()=>signOut(auth);
+$("#cp").onclick=async()=>{if(navigator.share)try{return await navigator.share({title:P.name,url})}catch(e){}await navigator.clipboard.writeText(url);$("#er").textContent="Link copied"};
+document.querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>{const[w,h]=b.dataset.s.split("x").map(Number),c=document.createElement("canvas");render(c,P,w,h,url);c.toBlob(bl=>{const a=document.createElement("a");a.href=URL.createObjectURL(bl);a.download=`mysocial-${P.username}-${h}.png`;a.click()})})}
+
+const esc=s=>String(s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function shrink(f){return new Promise((ok,no)=>{const i=new Image();i.onload=()=>{const S=256,c=document.createElement("canvas");c.width=c.height=S;const m=Math.min(i.width,i.height);c.getContext("2d").drawImage(i,(i.width-m)/2,(i.height-m)/2,m,m,0,0,S,S);let d=c.toDataURL("image/jpeg",.8);if(d.length>120000)d=c.toDataURL("image/jpeg",.5);d.length>120000?no():ok(d)};i.onerror=no;i.src=URL.createObjectURL(f)})}
+const rr=(x,a,b,w,h,r)=>{x.beginPath();x.roundRect(a,b,w,h,r)};
+function render(cv,p,W,H,url){cv.width=W;cv.height=H;const x=cv.getContext("2d"),[c1,c2,fg]=THEMES[p.theme.name]||THEMES.obsidian,ac=p.theme.accent||THEMES[p.theme.name][3],s=W/1080,cy=H/2;
+const g=x.createLinearGradient(0,0,W,H);g.addColorStop(0,c1);g.addColorStop(1,c2);x.fillStyle=g;rr(x,0,0,W,H,p.theme.radius*s*1.2);x.fill();
+x.fillStyle=ac+"33";x.beginPath();x.arc(W*.85,H*.12,300*s,0,7);x.fill();
+x.textAlign="center";x.fillStyle=fg;const top=H>W?260*s:150*s;
+const av=(o)=>{x.save();x.beginPath();x.arc(W/2,top,110*s,0,7);x.clip();if(o)x.drawImage(o,W/2-110*s,top-110*s,220*s,220*s);else{x.fillStyle=ac;x.fill()}x.restore();x.strokeStyle=ac;x.lineWidth=8*s;x.beginPath();x.arc(W/2,top,116*s,0,7);x.stroke()};
+const txt=()=>{x.fillStyle=fg;x.font=`700 ${64*s}px system-ui`;x.fillText(p.name||"Your Name",W/2,top+210*s);x.globalAlpha=.7;x.font=`${34*s}px system-ui`;x.fillText("@"+p.username,W/2,top+260*s);x.font=`${30*s}px system-ui`;x.fillText((p.bio||"").slice(0,70),W/2,top+320*s);x.globalAlpha=1;
+const ls=(p.socialLinks||[]).slice(0,6);ls.forEach((l,i)=>{const bw=250*s,bx=W/2-(ls.length*(bw+14*s))/2+i*(bw+14*s)+7*s;if(ls.length>3){}x.fillStyle=ac+"33";rr(x,bx,top+360*s+(i>2?70*s:0),bw,56*s,28*s);x.fill();x.fillStyle=fg;x.font=`600 ${26*s}px system-ui`;x.fillText(l.type,bx+bw/2,top+396*s+(i>2?70*s:0))});
+const q=qrcode(0,"M");q.addData(url);q.make();const n=q.getModuleCount(),qs=190*s,m=qs/n,qy=H-qs-150*s,qx=W/2-qs/2;x.fillStyle="#fff";rr(x,qx-16*s,qy-16*s,qs+32*s,qs+32*s,20*s);x.fill();x.fillStyle="#000";for(let r=0;r<n;r++)for(let c=0;c<n;c++)if(q.isDark(r,c))x.fillRect(qx+c*m,qy+r*m,m+.5,m+.5);
+x.fillStyle=fg;x.globalAlpha=.8;x.font=`600 ${28*s}px system-ui`;x.fillText("Scan to connect",W/2,H-90*s);x.globalAlpha=.45;x.font=`${22*s}px system-ui`;x.fillText("Create yours — MySocial Card",W/2,H-50*s);x.globalAlpha=1};
+if(p.photoURL){const i=new Image();i.crossOrigin="anonymous";i.onload=()=>{av(i);txt()};i.onerror=()=>{av();txt()};av();txt();i.src=p.photoURL}else{av();txt()}}
+
+// ---- public profile (reads only public data; counts views/clicks) ----
+async function publicView(un){try{
+const u=await getDoc(doc(db,"usernames",un));if(!u.exists())return app_.innerHTML=`<p class=glass>Profile not found. <a href="${BASE}">Create your own MySocial Card</a></p>`;
+const p=(await getDoc(doc(db,"users",u.data().uid))).data(),uid=p.uid;document.title=`${p.name} — MySocial Card`;
+const day=new Date().toISOString().slice(0,10),ar=doc(db,"analytics",uid,"days",day),qr=new URLSearchParams(location.search).get("src")=="qr";
+setDoc(ar,{views:increment(1),qr:increment(qr?1:0)},{merge:true}).catch(()=>{});
+const url=`${BASE}?u=${un}`,q=qrcode(0,"M");q.addData(url+"&src=qr");q.make();
+app_.innerHTML=`<div class="pub glass" style="margin-top:20px">${p.photoURL?`<img class=av src="${esc(p.photoURL)}" alt="${esc(p.name)}">`:""}<h1 style="font-size:2rem">${esc(p.name)}</h1><small>@${esc(un)}</small><p>${esc(p.bio)}</p>
+${(p.socialLinks||[]).filter(l=>l.enabled!==false).map(l=>`<a class=l data-t="${esc(l.type)}" rel="noopener" target=_blank href="${esc(l.url)}">${esc(l.type)}</a>`).join("")}
+<div style="background:#fff;padding:12px;border-radius:16px;display:inline-block;margin-top:14px">${q.createSvgTag(4)}</div><p><small>Scan to Connect</small></p>
+<a class=btn href="${BASE}">Create your own MySocial Card</a>
+<p><small><a href=# id=rp style="color:var(--mut)">Report profile</a></small></p></div>`;
+app_.querySelectorAll("a.l").forEach(a=>a.onclick=()=>setDoc(ar,{clicks:{[a.dataset.t]:increment(1)}},{merge:true}).catch(()=>{}));
+$("#rp").onclick=async e=>{e.preventDefault();const r=prompt("Reason: spam, fake identity, harassment, inappropriate, other");if(r)try{await addDoc(collection(db,"reports"),{username:un,reason:r.slice(0,100),createdAt:serverTimestamp()});alert("Thanks, report sent.")}catch(x){alert(msg(x))}}
+}catch(x){app_.innerHTML=`<p class=glass>${msg(x)}</p>`}}
+</script></body></html>
