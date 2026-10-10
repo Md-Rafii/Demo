@@ -2,6 +2,8 @@
 <html lang="bn">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-vVTaRGgHJ20YjQEr9v2/QDiwKo8TTvHWCrY8g3h1h+4=' https://www.gstatic.com https://cdnjs.cloudflare.com https://www.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://open.er-api.com https://www.google.com; frame-src https://*.firebaseapp.com https://www.google.com; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#E4E8F1">
 <title>মাই ওয়ালেট</title>
@@ -237,6 +239,16 @@ nav .fab:active{box-shadow:inset 3px 3px 9px rgba(0,0,0,.3),0 0 0 7px var(--bg)}
 .dbtn button:active{box-shadow:var(--inset-s)}
 .dbtn .dok{background:var(--grad);color:#fff;box-shadow:6px 6px 14px var(--sh1),-4px -4px 12px var(--sh2)}
 .dbtn .dok.bad{background:linear-gradient(135deg,#F2706F,#E5484D)}
+.qk{gap:20px 6px}.qk button{position:relative}
+.qk .proe{display:none;position:absolute;top:-6px;right:2px;font-style:normal;font-size:9.5px;font-weight:700;background:var(--grad);color:#fff;border-radius:99px;padding:1px 7px}
+.qk.free .proe{display:block}
+.tpage{position:fixed;inset:0;z-index:25;background:var(--bg);overflow-y:auto;transform:translateX(100%);visibility:hidden;transition:transform .32s cubic-bezier(.2,.8,.2,1),visibility 0s .32s}
+.tpage.on{transform:none;visibility:visible;transition:transform .32s cubic-bezier(.2,.8,.2,1),visibility 0s}
+.thead{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:14px;padding:max(14px,env(safe-area-inset-top)) 20px 14px;background:var(--bg);max-width:560px;margin:auto}
+.thead b{font-size:20px}
+.tback{width:46px;height:46px;border:0;border-radius:50%;background:var(--bg);box-shadow:var(--raise-s);font-size:24px;line-height:1;color:var(--pu)}
+.tback:active{box-shadow:var(--inset-s)}
+.tbody{max-width:560px;margin:auto;padding:6px 20px 70px}
 /* auth */
 #auth{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px 18px}
 .pcard{width:100%;max-width:400px;border-radius:34px;padding:36px 24px 28px;background:var(--bg);box-shadow:var(--raise)}
@@ -297,25 +309,21 @@ nav .fab:active{box-shadow:inset 3px 3px 9px rgba(0,0,0,.3),0 0 0 7px var(--bg)}
 <h2 class="pad" style="margin-top:6px">আমার ওয়ালেট</h2>
 <div class="cards" id="cards"></div>
 <div class="pad">
-<h2>দ্রুত কাজ</h2>
-<div class="qk">
+<h2>ড্যাশবোর্ড</h2>
+<div class="qk" id="dash">
 <button data-open="tx:in"><i>📥</i>আয়</button>
 <button data-open="tx:ex"><i>📤</i>ব্যয়</button>
 <button data-open="tx:tr"><i>🔁</i>ট্রান্সফার</button>
 <button data-open="debt"><i>🤝</i>ধার</button>
+<button data-tool="d"><i>📒</i>দেনা-পাওনা</button>
+<button data-tool="g"><i>🎯</i>লক্ষ্য</button>
+<button data-tool="r"><i>📊</i>রিপোর্ট<em class="proe">PRO</em></button>
+<button data-tool="b"><i>🧮</i>বাজেট<em class="proe">PRO</em></button>
+<button data-tool="i"><i>🧾</i>বিল<em class="proe">PRO</em></button>
+<button data-tool="a"><i>🔔</i>অ্যালার্ট<em class="proe">PRO</em></button>
+<button data-p="rt"><i>💱</i>কারেন্সি</button>
+<button data-open="wallet"><i>👛</i>নতুন ওয়ালেট</button>
 </div>
-<h2>টুলস</h2>
-<div class="seg sc" data-g="mo"><button class="on" data-seg="mo:d">দেনা-পাওনা</button><button data-seg="mo:g">লক্ষ্য</button><button data-seg="mo:r">📊 রিপোর্ট</button><button data-seg="mo:b">🎯 বাজেট</button><button data-seg="mo:i">🧾 বিল</button></div>
-<div id="mo-d">
-<div class="mini" style="margin:0 0 12px"><div class="gc">আমি পাব<b class="in" id="dGet">০</b></div><div class="gc">আমি দেব<b class="ex" id="dOwe">০</b></div></div>
-<button class="cta" data-open="debt">+ নতুন দেনা-পাওনা</button>
-<div id="dList" style="margin-top:12px"></div></div>
-<div id="mo-g" class="hide">
-<button class="cta" data-open="goal">+ নতুন লক্ষ্য</button>
-<div class="rows" id="gList" style="margin-top:12px"></div></div>
-<div id="mo-r" class="hide"><div id="repBox"></div></div>
-<div id="mo-b" class="hide"><div id="budBox"></div></div>
-<div id="mo-i" class="hide"><div id="billBox"></div></div>
 <h2>সাম্প্রতিক লেনদেন</h2>
 <div class="rows" id="recent"></div>
 </div></div>
@@ -332,7 +340,7 @@ nav .fab:active{box-shadow:inset 3px 3px 9px rgba(0,0,0,.3),0 0 0 7px var(--bg)}
 <!-- রেট -->
 <div class="page pad" id="p-rt">
 <h2>কারেন্সি</h2>
-<div class="seg" data-g="rt"><button class="on" data-seg="rt:r">লাইভ রেট</button><button data-seg="rt:c">কনভার্টার</button><button data-seg="rt:a">🔔 অ্যালার্ট</button></div>
+<div class="seg" data-g="rt"><button class="on" data-seg="rt:r">লাইভ রেট</button><button data-seg="rt:c">কনভার্টার</button></div>
 <div id="rt-r">
 <div class="gc sbar" style="padding:22px 14px 6px;margin:10px 0 12px"><div class="fld"><select id="base"></select><label>বেস মুদ্রা</label></div><div class="fld"><input id="q" placeholder="খুঁজুন: USD, ডলার…"><label>খুঁজুন</label></div></div>
 <div class="sub" id="baseNote" style="margin:0 4px 8px"></div>
@@ -342,7 +350,6 @@ nav .fab:active{box-shadow:inset 3px 3px 9px rgba(0,0,0,.3),0 0 0 7px var(--bg)}
 <div class="two" style="display:flex;gap:8px"><div class="fld"><select id="cFrom"></select><label>থেকে</label></div><div class="fld"><select id="cTo"></select><label>এতে</label></div></div>
 <button class="cta alt" id="swap" style="margin-top:0">⇄ অদলবদল</button>
 <div class="cvo" id="cOut">—</div><div class="sub" id="cRate"></div></div></div>
-<div id="rt-a" class="hide"><div id="alBox"></div></div>
 </div>
 
 <!-- প্রোফাইল -->
@@ -373,6 +380,20 @@ nav .fab:active{box-shadow:inset 3px 3px 9px rgba(0,0,0,.3),0 0 0 7px var(--bg)}
 <button class="cta alt" id="out2" style="margin-top:28px;color:var(--ex)">⎋ লগআউট</button>
 </div></div>
 
+
+<div id="tpage" class="tpage"><div class="thead"><button class="tback" id="tBack" aria-label="ফিরে যান">‹</button><b id="tlTitle">—</b></div><div class="tbody">
+<div id="mo-d">
+<div class="mini" style="margin:0 0 12px"><div class="gc">আমি পাব<b class="in" id="dGet">০</b></div><div class="gc">আমি দেব<b class="ex" id="dOwe">০</b></div></div>
+<button class="cta" data-open="debt">+ নতুন দেনা-পাওনা</button>
+<div id="dList" style="margin-top:12px"></div></div>
+<div id="mo-g" class="hide">
+<button class="cta" data-open="goal">+ নতুন লক্ষ্য</button>
+<div class="rows" id="gList" style="margin-top:12px"></div></div>
+<div id="mo-r" class="hide"><div id="repBox"></div></div>
+<div id="mo-b" class="hide"><div id="budBox"></div></div>
+<div id="mo-i" class="hide"><div id="billBox"></div></div>
+<div id="mo-a" class="hide"><div id="alBox"></div></div>
+</div></div>
 
 <nav><div class="in-nav">
 <button data-p="home" class="on"><i>🏠</i>হোম</button>
@@ -477,7 +498,11 @@ const app=initializeApp({
   messagingSenderId:"901912926518",
   appId:"1:901912926518:web:6388a890716238aae13b97"
 });
+if(top!==self){document.documentElement.style.display='none';try{top.location.href=self.location.href}catch(e){}}
+const APPCHECK_KEY=''; // Firebase Console → App Check → reCAPTCHA v3 site key এখানে বসান
+if(APPCHECK_KEY){try{const m=await import('https://www.gstatic.com/firebasejs/12.19.0/firebase-app-check.js');m.initializeAppCheck(app,{provider:new m.ReCaptchaV3Provider(APPCHECK_KEY),isTokenAutoRefreshEnabled:true})}catch(e){}}
 const auth=getAuth(app),db=getFirestore(app);
+const PH_RE=/^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$/;
 const $=id=>document.getElementById(id);
 const ls={get(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -542,7 +567,7 @@ $('out2').onclick=async()=>{if(await askC('এই ডিভাইস থেক�
 let P=null,pendingName='',blockedMsg='';
 const uidCode=u=>'WL-'+u.slice(0,6).toUpperCase();
 onAuthStateChanged(auth,async u=>{
-  unsubs.forEach(f=>f());unsubs=[];proUnsubs.forEach(f=>f());proUnsubs=[];wasPro=null;PAY=[];ST={...DEF};U=u;P=null;
+  unsubs.forEach(f=>f());unsubs=[];proUnsubs.forEach(f=>f());proUnsubs=[];wasPro=null;PAY=[];ST={...DEF};closeTool(true);U=u;P=null;
   S=emptyS();
   if(!u){$('auth').classList.remove('hide');$('app').classList.add('hide');if(blockedMsg){amsg(blockedMsg);blockedMsg=''}return}
   try{
@@ -570,7 +595,7 @@ onAuthStateChanged(auth,async u=>{
 });
 function drawProfile(){
   if(!U)return;
-  const n=(P&&P.name)||U.displayName||(U.email||'').split('@')[0]||'ইউজার',ini=[...n][0]||'?',id=(P&&P.userId)||uidCode(U.uid),ph=P&&P.photo;
+  const n=(P&&P.name)||U.displayName||(U.email||'').split('@')[0]||'ইউজার',ini=[...n][0]||'?',id=(P&&P.userId)||uidCode(U.uid),ph=P&&P.photo&&PH_RE.test(P.photo)?P.photo:'';
   const setAv=el=>{el.style.backgroundImage=ph?`url("${ph}")`:'';el.textContent=ph?'':ini};
   setAv($('pfb'));$('pfb').classList.toggle('ph',!!ph);setAv($('bigAv'));if(phNew===undefined)setAv($('pfAv'));
   $('hello').textContent='হ্যালো, '+n.split(' ')[0]+' 👋';
@@ -676,7 +701,7 @@ const alHit=a=>{const c=rt(a.f,a.t);return a.dir==='above'?c>=a.v:c<=a.v};
 const sumM=(k,key,cat)=>S.txs.filter(t=>t.k===k&&t.d.startsWith(key)&&(!cat||t.cat===cat)).reduce((s,t)=>s+t.a*rt(t.cur,home),0);
 
 function drawPlan(){
-  const pr=isPro(),exp=P&&P.plan==='pro'&&!pr,b=$('planb');
+  const pr=isPro(),exp=P&&P.plan==='pro'&&!pr,b=$('planb');$('dash').classList.toggle('free',!pr);
   b.textContent=pr?`⭐ প্রো • ${fmt(daysLeft(),0)} দিন বাকি`:exp?'প্রো-র মেয়াদ শেষ • নবায়ন করুন':'ফ্রি প্ল্যান • প্রো নিন';b.classList.toggle('pro',pr);
   $('planCard').innerHTML=`<div class="crown" style="font-size:30px">${pr?'👑':'✨'}</div><div style="flex:1"><b>${pr?'প্রো সক্রিয়':'ফ্রি প্ল্যান'}</b><div class="sub">${pr?proEnd().toLocaleDateString('bn-BD',{day:'numeric',month:'long',year:'numeric'})+' পর্যন্ত':'রিপোর্ট, বাজেট, বিল রিমাইন্ডার ও আরও অনেক কিছু আনলক করুন'}</div></div><span style="color:var(--mu);font-size:22px">›</span>`;
   const pp=$('prPlan');pp.textContent=pr?`⭐ প্রো • ${fmt(daysLeft(),0)} দিন বাকি`:exp?'প্রো-র মেয়াদ শেষ':'ফ্রি প্ল্যান';pp.className='bd'+(pr?' pro':'');
@@ -820,16 +845,32 @@ async function exportPdf(){
   }catch(e){toast('PDF তৈরি হয়নি')}finally{box.remove()}
 }
 
+/* ---------- tool pages ---------- */
+const TOOLS={d:'দেনা-পাওনা',g:'সঞ্চয় লক্ষ্য',r:'রিপোর্ট ও চার্ট',b:'মাসিক বাজেট',i:'বিল ও রিকারিং খরচ',a:'রেট অ্যালার্ট'};
+let toolOpen=false;
+function openTool(k){
+  ['d','g','r','b','i','a'].forEach(x=>$('mo-'+x).classList.toggle('hide',x!==k));
+  $('tlTitle').textContent=TOOLS[k];$('tpage').scrollTop=0;$('tpage').classList.add('on');
+  if(!toolOpen){history.pushState({t:1},'');toolOpen=true}
+}
+function closeTool(fromPop){$('tpage').classList.remove('on');if(toolOpen){toolOpen=false;if(!fromPop)history.back()}}
+$('tBack').onclick=()=>closeTool();
+window.addEventListener('popstate',()=>{if(toolOpen)closeTool(true)});
+
 /* ---------- pin lock ---------- */
 const hp=async p=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode('wl:'+p)))].map(x=>x.toString(16).padStart(2,'0')).join('');
 let lkBuf='';
 const drawLk=()=>{$('lkDots').innerHTML=[0,1,2,3].map(i=>`<i class="${i<lkBuf.length?'f':''}"></i>`).join('')};
 function showLock(){if(!ls.get('rb_pin',''))return;lkBuf='';drawLk();$('lkMsg').textContent='';$('lock').classList.remove('hide')}
 $('lkKeys').innerHTML=[1,2,3,4,5,6,7,8,9,'',0,'⌫'].map(k=>k===''?'<span></span>':`<button data-k="${k}">${k}</button>`).join('');
+const lkf=()=>ls.get('rb_pin_f',{n:0,until:0});
 $('lkKeys').onclick=async e=>{const k=e.target.dataset.k;if(k==null)return;
+  const f=lkf();if(Date.now()<f.until){lkBuf='';drawLk();return void($('lkMsg').textContent=`অনেকবার ভুল হয়েছে। ${Math.ceil((f.until-Date.now())/1000)} সেকেন্ড পরে চেষ্টা করুন`)}
   if(k==='⌫')lkBuf=lkBuf.slice(0,-1);else if(lkBuf.length<4)lkBuf+=k;
   drawLk();
-  if(lkBuf.length===4){if(await hp(lkBuf)===ls.get('rb_pin','')){$('lock').classList.add('hide');lkBuf=''}else{$('lkMsg').textContent='পিন ভুল হয়েছে';lkBuf='';setTimeout(drawLk,250)}}};
+  if(lkBuf.length===4){
+    if(await hp(lkBuf)===ls.get('rb_pin','')){ls.set('rb_pin_f',{n:0,until:0});$('lock').classList.add('hide');lkBuf=''}
+    else{f.n++;if(f.n>=5)f.until=Date.now()+30000*Math.min(f.n-4,10);ls.set('rb_pin_f',f);$('lkMsg').textContent=f.until>Date.now()?'পরপর ভুল! কিছুক্ষণ অপেক্ষা করুন':'পিন ভুল হয়েছে';lkBuf='';setTimeout(drawLk,250)}}};
 $('lkOut').onclick=()=>{ls.set('rb_pin','');$('lock').classList.add('hide');signOut(auth)};
 document.addEventListener('visibilitychange',()=>{if(document.hidden)lockedAt=Date.now();else if(lockedAt&&Date.now()-lockedAt>60000)showLock()});
 $('pinBtn').onclick=async()=>{
@@ -926,7 +967,7 @@ const showPage=p=>{
   ['home','tx','rt','mo'].forEach(s=>$('p-'+s).classList.toggle('hide',s!==p));scrollTo(0,0);
 };
 document.addEventListener('click',async e=>{
-  const el=e.target.closest('[data-fav],[data-dw],[data-dt],[data-pay],[data-et],[data-ed],[data-dpx],[data-full],[data-dd],[data-dg],[data-ga],[data-open],[data-p],[data-seg],[data-m],[data-close],[data-wp],[data-copy],[data-plan],[data-rm],[data-pdf],[data-bp],[data-bl],[data-bx],[data-be],[data-bd],[data-ax],[data-wa]');
+  const el=e.target.closest('[data-fav],[data-dw],[data-dt],[data-pay],[data-et],[data-ed],[data-dpx],[data-full],[data-dd],[data-dg],[data-ga],[data-open],[data-p],[data-seg],[data-m],[data-close],[data-wp],[data-copy],[data-plan],[data-rm],[data-pdf],[data-bp],[data-bl],[data-bx],[data-be],[data-bd],[data-ax],[data-wa],[data-tool]');
   if(!el)return;const d=el.dataset;
   if(d.close)closeSheet();
   if(d.copy){navigator.clipboard?.writeText($(d.copy).textContent).then(()=>toast('কপি হয়েছে')).catch(()=>toast('কপি করা যায়নি'))}
@@ -934,7 +975,8 @@ document.addEventListener('click',async e=>{
   if(d.plan){upPlan=d.plan;drawUp()}
   if(d.rm){repM=Math.min(0,repM+ +d.rm);drawReport()}
   if(d.pdf)exportPdf();
-  if(d.wa){const x=S.debts.find(y=>y.id===d.wa);if(x&&!needPro()){const msg=`আসসালামু আলাইকুম ${x.who}, আপনার কাছে আমার ${fmt(rem(x))} ${x.cur} পাওনা আছে। সুবিধামতো সময়ে দিয়ে দিলে ভালো হয়। ধন্যবাদ।`;window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank')}}
+  if(d.tool)openTool(d.tool);
+  if(d.wa){const x=S.debts.find(y=>y.id===d.wa);if(x&&!needPro()){const msg=`আসসালামু আলাইকুম ${x.who}, আপনার কাছে আমার ${fmt(rem(x))} ${x.cur} পাওনা আছে। সুবিধামতো সময়ে দিয়ে দিলে ভালো হয়। ধন্যবাদ।`;window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank','noopener,noreferrer')}}
   if(d.bp){const b=S.bills.find(y=>y.id===d.bp);if(b){payBill=b.id;openSheet('tx','ex');$('tAmt').value=b.a;$('tCat').value=b.cat;$('tNote').value=b.name}}
   if(d.bl){const b=S.bills.find(y=>y.id===d.bl);if(b){editBill=b.id;openSheet('bill');const known=BILLS.some(x=>x[0]===b.name);$('blKind').value=known?b.name:'__o';$('blName').value=known?'':b.name;$('blAmt').value=b.a;$('blCur').value=b.cur;$('blDay').value=b.day;$('blCat').value=b.cat;billKindUI(false)}}
   if(d.bx&&await askC('এই বিলটি মুছবেন?'))deleteDoc(dref('bills',d.bx));
@@ -947,7 +989,7 @@ document.addEventListener('click',async e=>{
   if(d.seg){const [g,v]=d.seg.split(':');
     el.parentElement.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===el));
     if(g==='tf'){txf=v;draw()}
-    if(g==='rt'){['r','c','a'].forEach(x=>$('rt-'+x).classList.toggle('hide',x!==v))}
+    if(g==='rt'){['r','c'].forEach(x=>$('rt-'+x).classList.toggle('hide',x!==v))}
     if(g==='mo'){['d','g','r','b','i'].forEach(x=>$('mo-'+x).classList.toggle('hide',x!==v))}}
   if(d.fav){fav=fav.includes(d.fav)?fav.filter(x=>x!==d.fav):[...fav,d.fav];ls.set('rb_fav',fav);drawRates()}
   if(d.dw&&await askC('এই ওয়ালেট মুছবেন? এর লেনদেনের তালিকা থেকে যাবে।'))deleteDoc(dref('wallets',d.dw));
