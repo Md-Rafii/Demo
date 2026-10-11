@@ -2,7 +2,7 @@
 <html lang="bn">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-pagC5A8DSQMjoRAxEHSoDRF2LBkhWWDQ62OasPk/b94=' https://www.gstatic.com https://cdnjs.cloudflare.com https://www.google.com https://pagead2.googlesyndication.com https://partner.googleadservices.com https://tpc.googlesyndication.com https://www.googletagservices.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://*.googlesyndication.com https://*.doubleclick.net https://*.google.com https://*.adtrafficquality.google; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://open.er-api.com https://www.google.com https://*.cloudfunctions.net https://*.run.app https://*.googlesyndication.com https://*.adtrafficquality.google; frame-src https://*.firebaseapp.com https://www.google.com https://*.doubleclick.net https://*.googlesyndication.com; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-3Ab38mo3zLFBg+XYP6FYxdXofcMaJQCIo0PMkiDAKUM=' https://www.gstatic.com https://cdnjs.cloudflare.com https://www.google.com https://pagead2.googlesyndication.com https://partner.googleadservices.com https://tpc.googlesyndication.com https://www.googletagservices.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://*.googlesyndication.com https://*.doubleclick.net https://*.google.com https://*.adtrafficquality.google; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://open.er-api.com https://www.google.com https://*.cloudfunctions.net https://*.run.app https://*.googlesyndication.com https://*.adtrafficquality.google; frame-src https://*.firebaseapp.com https://www.google.com https://*.doubleclick.net https://*.googlesyndication.com; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#E4E8F1">
@@ -339,6 +339,7 @@ nav .fab:active{box-shadow:inset 3px 3px 9px rgba(0,0,0,.3),0 0 0 7px var(--bg)}
 <button data-open="tx:in"><i>📥</i>আয়</button>
 <button data-open="tx:ex"><i>📤</i>ব্যয়</button>
 <button data-open="tx:tr"><i>🔁</i>ট্রান্সফার</button>
+<button data-tool="d"><i>📒</i>দেনা-পাওনা</button>
 <button data-tool="g"><i>🎯</i>লক্ষ্য</button>
 <button data-tool="r"><i>📊</i>রিপোর্ট<em class="proe">PRO</em></button>
 <button data-tool="b"><i>🧮</i>বাজেট<em class="proe">PRO</em></button>
@@ -850,9 +851,9 @@ function drawUp(){
   const rw=(t,f,p)=>`<div class="rw"><span>${t}</span><span class="${f===true?'y':f===false?'n':''}">${f===true?'✓':f===false?'✗':f}</span><span class="${p===true?'y':''}">${p===true?'✓':p}</span></div>`;
   $('cmp').innerHTML='<div class="h"><span>ফিচার</span><span>ফ্রি</span><span>⭐ প্রো</span></div>'+[
     ['ওয়ালেট',`${fmt(ST.freeWallets,0)}টি`,'আনলিমিটেড'],['হিসাবের ইতিহাস',`${fmt(ST.freeDays,0)} দিন`,'সম্পূর্ণ'],
-    ['আয়-ব্যয় ও ট্রান্সফার',true,true],['সঞ্চয় লক্ষ্য',true,true],['লাইভ রেট ও কনভার্টার',true,true],
+    ['আয়-ব্যয় ও ট্রান্সফার',true,true],['দেনা-পাওনা ও কিস্তি',true,true],['সঞ্চয় লক্ষ্য',true,true],['লাইভ রেট ও কনভার্টার',true,true],
     ['রিপোর্ট, চার্ট ও PDF',false,true],['স্মার্ট ইনসাইট',false,true],['মাসিক বাজেট ও সতর্কতা',false,true],['বিল ও রিকারিং রিমাইন্ডার',false,true],
-    ['রেট অ্যালার্ট',false,true],['অ্যাপ লক (পিন)',false,true]].map(r=>rw(...r)).join('');
+    ['রেট অ্যালার্ট',false,true],['দেনার WhatsApp রিমাইন্ডার',false,true],['অ্যাপ লক (পিন)',false,true]].map(r=>rw(...r)).join('');
   $('upSt').textContent=pr?`প্রো সক্রিয় • ${proEnd().toLocaleDateString('bn-BD',{day:'numeric',month:'long',year:'numeric'})} পর্যন্ত (${fmt(daysLeft(),0)} দিন)`:(P&&P.plan==='pro'?'প্রো-র মেয়াদ শেষ হয়েছে':'আপনি এখন ফ্রি প্ল্যানে আছেন');
   const sv=ST.priceM*12-ST.priceY;
   $('plans').innerHTML=`<button data-plan="m" class="${upPlan==='m'?'on':''}"><b>৳${fmt(ST.priceM,0)}</b><span>মাসিক • ৩০ দিন</span></button><button data-plan="y" class="${upPlan==='y'?'on':''}">${sv>0?`<em>${fmt(sv,0)} টাকা সাশ্রয়</em>`:''}<b>৳${fmt(ST.priceY,0)}</b><span>বার্ষিক • ৩৬৫ দিন</span></button>`;
@@ -1014,7 +1015,7 @@ const CH=[
  {t:'আজ কোনো অপ্রয়োজনীয় খরচ করবেন না',d:'শখের কেনাকাটা আজকের জন্য বাদ'},
  {t:'আজ বাইরের খাবার এড়িয়ে চলুন',d:'ঘরের খাবার খান, টাকা বাঁচান'},
  {t:'আজ অন্তত ২০ টাকা সঞ্চয় করুন',d:'লক্ষ্যে জমা দিন বা আলাদা করে রাখুন'},
- {t:'আজ নিজের সঞ্চয় লক্ষ্যের অগ্রগতি দেখুন',d:'লক্ষ্যে কত জমল, একবার দেখে নিন'},
+ {t:'আজ একটা দেনা-পাওনা মিলিয়ে দেখুন',d:'কার কাছে কত বাকি, দেখে নিন'},
  {t:'আজ একটা বিল বা সাবস্ক্রিপশন যাচাই করুন',d:'দরকার না হলে বন্ধ করে দিন'},
  {t:'আজ হেঁটে বা সাইকেলে যাতায়াত করুন',d:'রিকশা-বাসের ভাড়া বাঁচান'},
  {t:'আগামী ৭ দিনের খরচের পরিকল্পনা করুন',d:'বাজার ও বিলের তালিকা বানান'},
@@ -1037,6 +1038,9 @@ function pickInsight(idx){
   if(pex>0&&ex>0)L.push(`আগের মাসের তুলনায় এ পর্যন্ত ব্যয় ${fmt(Math.abs(ex-pex)/pex*100,0)}% ${ex>pex?'বেশি':'কম'}।`);
   const net=S.wallets.reduce((s,w)=>s+w.bal*rt(w.cur,home),0);
   if(S.wallets.length>1&&net>0){const w=S.wallets.slice().sort((a,b)=>b.bal*rt(b.cur,home)-a.bal*rt(a.cur,home))[0];L.push(`আপনার মোট সম্পদের ${fmt(w.bal*rt(w.cur,home)/net*100,0)}% "${esc(w.name)}" ওয়ালেটে আছে।`)}
+  const get=S.debts.filter(d=>d.k==='get').reduce((s,d)=>s+rem(d)*rt(d.cur,home),0),owe=S.debts.filter(d=>d.k==='owe').reduce((s,d)=>s+rem(d)*rt(d.cur,home),0);
+  if(get>0)L.push(`অন্যের কাছে আপনার ${fmt(get,0)} ${home} পাওনা আছে, সময়মতো তাগাদা দিন।`);
+  if(owe>0)L.push(`আপনার ${fmt(owe,0)} ${home} দেনা আছে, মেটানোর পরিকল্পনা করে ফেলুন।`);
   TIPS.forEach(t=>L.push('💡 '+t));
   return L[idx%L.length];
 }
